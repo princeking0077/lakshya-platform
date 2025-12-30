@@ -26,13 +26,30 @@ const sidebarItems = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const user = useAuthStore((state) => state.user);
+    const isHydrated = useAuthStore((state) => state.isHydrated);
     const logout = useAuthStore((state) => state.logout);
     const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+    const [authorized, setAuthorized] = React.useState(false);
+
+    React.useEffect(() => {
+        // Wait for store hydration before checking auth
+        if (!isHydrated) return;
+
+        // Protect Route
+        if (!user || user.role !== 'admin') {
+            router.push('/login');
+        } else {
+            setAuthorized(true);
+        }
+    }, [user, isHydrated, router]);
 
     const handleLogout = () => {
         logout();
         router.push('/login');
     };
+
+    if (!isHydrated || !authorized) return null; // Prevent flash of content
 
     return (
         <div className="min-h-screen bg-zinc-950 text-white flex">
@@ -44,7 +61,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <div className="h-full flex flex-col p-4">
                     <div className="flex items-center justify-between mb-8 px-2">
                         <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                            LAKSHYA
+                            LAKSHYA <span className="text-xs text-gray-500 font-mono">v3.0</span>
                         </h1>
                         <button onClick={() => setIsSidebarOpen(false)} className="lg:hidden p-2 text-gray-400 hover:text-white">
                             <X size={20} />
@@ -60,8 +77,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     key={item.href}
                                     href={item.href}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive
-                                            ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20'
-                                            : 'text-gray-400 hover:bg-zinc-800 hover:text-white'
+                                        ? 'bg-blue-600/10 text-blue-400 border border-blue-600/20'
+                                        : 'text-gray-400 hover:bg-zinc-800 hover:text-white'
                                         }`}
                                 >
                                     <Icon size={20} />

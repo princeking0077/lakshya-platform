@@ -1,60 +1,77 @@
 const express = require('express');
 const router = express.Router();
-const Test = require('../models/Test');
-
-// Middleware placeholder
-const adminOnly = (req, res, next) => next();
+const { pool } = require('../config/db');
 
 // @desc    Get all tests
 // @route   GET /api/tests
-// @access  Public
 router.get('/', async (req, res) => {
     try {
-        const tests = await Test.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, count: tests.length, data: tests });
-    } catch (error) {
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-});
+        const [tests] = await pool.execute('SELECT * FROM tests ORDER BY created_at DESC');
 
-// @desc    Get single test
-// @route   GET /api/tests/:id
-// @access  Public
-router.get('/:id', async (req, res) => {
-    try {
-        const test = await Test.findById(req.params.id);
-        if (!test) return res.status(404).json({ success: false, error: 'Test not found' });
-        res.status(200).json({ success: true, data: test });
-    } catch (error) {
-        res.status(500).json({ success: false, error: 'Server Error' });
-    }
-});
+        for (let test of tests) {
+            const [qCount] = await pool.execute('SELECT COUNT(*) as count FROM questions WHERE test_id = ?', [test.id]);
+            const count = qCount[0].count;
 
-// @desc    Create new test
-// @route   POST /api/tests
-// @access  Private/Admin
-router.post('/', adminOnly, async (req, res) => {
-    try {
-        const test = await Test.create(req.body);
-        res.status(201).json({ success: true, data: test });
-    } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
-    }
-});
-
-// @desc    Delete test
-// @route   DELETE /api/tests/:id
-// @access  Private/Admin
-router.delete('/:id', adminOnly, async (req, res) => {
-    try {
-        const test = await Test.findById(req.params.id);
-        if (!test) {
-            return res.status(404).json({ success: false, error: 'Test not found' });
+            test._id = test.id;
+            // Dummy questions array for length check in frontend (Fixed in V12, but good for backward compat)
+            test.questions = new Array(count).fill(null);
         }
-        await test.deleteOne();
-        res.status(200).json({ success: true, data: {} });
+
+        res.json({ success: true, data: tests });
     } catch (error) {
-        res.status(500).json({ success: false, error: 'Server Error' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @desc    Create Test
+// @route   POST /api/tests
+router.post('/', async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const { title, duration, totalMarks, negativeMarks, questions } = req.body;
+
+        if (!title) {
+            throw new Error("Title is required");
+        }
+
+        // Insert Test
+        const [result] = await connection.execute(
+            'INSERT INTO tests (title, duration, total_marks, negative_marks) VALUES (?, ?, ?, ?)',
+            [title, duration || 180, totalMarks || 0, negativeMarks || 1.0]
+        );
+
+        const testId = result.insertId;
+
+        // Insert Questions
+        if (questions && Array.isArray(questions)) {
+            const qSql = 'INSERT INTO questions (test_id, question_text, option_1, option_2, option_3, option_4, correct_option, marks) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+            for (const q of questions) {
+                await connection.execute(qSql, [
+                    testId,
+                    q.questionText,
+                    q.options[0],
+                    q.options[1],
+                    q.options[2],
+                    q.options[3],
+                    q.correctOption,
+                    q.marks || 4
+                ]);
+            }
+        }
+
+        await connection.commit();
+        res.json({ success: true, data: { _id: testId } });
+
+    } catch (error) {
+        await connection.rollback();
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
+    } finally {
+        connection.release();
     }
 });
 

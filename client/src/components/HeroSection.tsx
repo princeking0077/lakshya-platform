@@ -11,7 +11,7 @@ const HeroSection = () => {
     const y2 = useTransform(scrollY, [0, 500], [0, -150]);
 
     return (
-        <section className="relative w-full min-h-screen overflow-hidden bg-black text-white flex items-center justify-center selection:bg-blue-500/30 touch-none">
+        <section className="relative w-full min-h-screen overflow-hidden bg-black text-white flex items-center justify-center selection:bg-blue-500/30">
             {/* Dynamic Background */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,_#1a1d29_0%,_#000000_100%)]" />
             <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.15] brightness-100 contrast-150 pointer-events-none" />

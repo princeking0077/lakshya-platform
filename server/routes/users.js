@@ -1,74 +1,87 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
 const bcrypt = require('bcryptjs');
-
-// Middleware to check if user is admin (Placeholder - implement real one later)
-const adminOnly = (req, res, next) => {
-    // For now, allow all (Phase 2 constraint), will add JWT verify middleware in Phase 4
-    next();
-};
+const { pool } = require('../config/db');
 
 // @desc    Get all students
 // @route   GET /api/users
-// @access  Private/Admin
-router.get('/', adminOnly, async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const users = await User.find({ role: 'student' }).sort({ createdAt: -1 });
-        res.json(users);
+        const [users] = await pool.execute("SELECT id, name, email, role, phone, is_approved, created_at FROM users WHERE role = 'student' ORDER BY created_at DESC");
+
+        // Map keys
+        const formattedUsers = users.map(u => ({
+            ...u,
+            _id: u.id,
+            createdAt: u.created_at
+        }));
+
+        res.json(formattedUsers);
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 
-// @desc    Create a student
+// @desc    Create User (Admin)
 // @route   POST /api/users
-// @access  Private/Admin
-router.post('/', adminOnly, async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { name, email, password, phone } = req.body;
 
-        const userExists = await User.findOne({ email });
-        if (userExists) {
-            return res.status(400).json({ message: 'User already exists' });
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, message: 'Please provide all fields' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const role = 'student';
 
-        const user = await User.create({
+        const [result] = await pool.execute(
+            'INSERT INTO users (name, email, password, role, phone) VALUES (?, ?, ?, ?, ?)',
+            [name, email, hashedPassword, role, phone || '']
+        );
+
+        res.json({
+            _id: result.insertId,
             name,
             email,
-            password: hashedPassword,
-            role: 'student',
-            phone
+            phone: phone || ''
         });
 
-        res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-        });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error(error);
+        res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
-router.delete('/:id', adminOnly, async (req, res) => {
+// @desc    Update User (Approval)
+// @route   PUT /api/users/:id
+router.put('/:id', async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (user) {
-            await user.deleteOne();
-            res.json({ message: 'User removed' });
-        } else {
-            res.status(404).json({ message: 'User not found' });
-        }
+        const { is_approved } = req.body;
+        const id = req.params.id;
+
+        const newStatus = is_approved !== undefined ? is_approved : 1;
+
+        await pool.execute('UPDATE users SET is_approved = ? WHERE id = ?', [newStatus, id]);
+
+        res.json({ success: true, is_approved: newStatus });
+
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+// @desc    Delete User
+// @route   DELETE /api/users/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await pool.execute('DELETE FROM users WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 

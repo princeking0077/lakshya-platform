@@ -18,9 +18,14 @@ const TestsPage = () => {
     const fetchTests = async () => {
         try {
             const res = await axios.get(`${API_BASE_URL}/api/tests`);
-            setTests(res.data.data);
+            if (res.data && Array.isArray(res.data.data)) {
+                setTests(res.data.data);
+            } else {
+                setTests([]);
+            }
         } catch (error) {
             console.error('Error fetching tests:', error);
+            setTests([]);
         } finally {
             setLoading(false);
         }
@@ -30,7 +35,8 @@ const TestsPage = () => {
         if (confirm('Are you sure you want to delete this test?')) {
             try {
                 await axios.delete(`${API_BASE_URL}/api/tests/${id}`);
-                setTests(tests.filter(t => t._id !== id));
+                const currentTests = Array.isArray(tests) ? tests : [];
+                setTests(currentTests.filter(t => t._id !== id));
             } catch (error) {
                 alert('Error deleting test');
             }

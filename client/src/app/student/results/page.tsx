@@ -32,7 +32,7 @@ const StudentResults = () => {
             </header>
 
             <div className="space-y-4">
-                {results.map((result, idx) => (
+                {Array.isArray(results) && results.map((result, idx) => (
                     <motion.div
                         key={result._id}
                         initial={{ opacity: 0, y: 10 }}

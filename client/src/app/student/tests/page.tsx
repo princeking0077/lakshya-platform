@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Clock, ChevronRight, Play } from 'lucide-react';
+import { FileText, Clock, Play } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config';
 import Link from 'next/link';
@@ -15,9 +15,14 @@ const StudentTests = () => {
         const fetchTests = async () => {
             try {
                 const res = await axios.get(`${API_BASE_URL}/api/tests`);
-                setTests(res.data.data);
+                if (res.data && Array.isArray(res.data.data)) {
+                    setTests(res.data.data);
+                } else {
+                    setTests([]);
+                }
             } catch (error) {
                 console.error(error);
+                setTests([]);
             } finally {
                 setLoading(false);
             }
@@ -50,7 +55,7 @@ const StudentTests = () => {
                             <div className="flex items-center justify-center md:justify-start gap-4 text-sm text-gray-500">
                                 <span className="flex items-center gap-1"><Clock size={14} /> {test.duration} mins</span>
                                 <span>•</span>
-                                <span>{test.questions.length} Questions</span>
+                                <span>{test.questions?.length || 0} Questions</span>
                                 <span>•</span>
                                 <span>{test.totalMarks} Marks</span>
                             </div>
@@ -58,7 +63,7 @@ const StudentTests = () => {
 
                         <div className="flex items-center gap-3 w-full md:w-auto">
                             <Link
-                                href={`/student/test/${test._id}`}
+                                href={`/student/test-room?id=${test._id}`}
                                 className="flex-1 md:flex-none py-3 px-8 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-colors flex items-center justify-center gap-2"
                             >
                                 Start Test <Play size={16} fill="currentColor" />

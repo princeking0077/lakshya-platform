@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { BookOpen, Search } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config';
+import Link from 'next/link';
 
 const StudentCourses = () => {
     const [courses, setCourses] = useState<any[]>([]);
@@ -49,32 +50,30 @@ const StudentCourses = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
-                        className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all"
+                        className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden group hover:border-zinc-700 transition-all cursor-pointer"
                     >
-                        <div className="h-40 bg-zinc-800 relative">
-                            {/* Placeholder Thumbnail */}
-                            <div className="absolute inset-0 flex items-center justify-center text-zinc-700">
-                                <BookOpen size={48} />
+                        <Link href={`/student/course-player?id=${course._id}`}>
+                            <div className="h-40 bg-zinc-800 relative">
+                                {/* Placeholder Thumbnail */}
+                                <div className="absolute inset-0 flex items-center justify-center text-zinc-700">
+                                    <BookOpen size={48} />
+                                </div>
+                                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white">
+                                    {course.category}
+                                </div>
                             </div>
-                            <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white">
-                                {course.category}
-                            </div>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{course.title}</h3>
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">{course.description}</p>
+                            <div className="p-6">
+                                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{course.title}</h3>
+                                <p className="text-gray-400 text-sm mb-4 line-clamp-2 min-h-[40px]">{course.description}</p>
 
-                            <div className="w-full bg-zinc-800 h-2 rounded-full mb-4 overflow-hidden">
-                                <div className="bg-blue-600 h-full w-[45%]" />
+                                <div className="flex items-center justify-between mt-4">
+                                    <span className="text-xs text-blue-400 font-medium">Access Content</span>
+                                    <button className="px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors">
+                                        Open
+                                    </button>
+                                </div>
                             </div>
-
-                            <div className="flex items-center justify-between">
-                                <span className="text-xs text-gray-500">45% Completed</span>
-                                <button className="px-4 py-2 bg-white text-black text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors">
-                                    Resume
-                                </button>
-                            </div>
-                        </div>
+                        </Link>
                     </motion.div>
                 ))}
             </div>

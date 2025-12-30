@@ -1,16 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Standard config for Vercel / Node.js
+  output: 'export',
   images: {
-     // Default is fine for Vercel
+    unoptimized: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true, 
-  }
+    ignoreBuildErrors: true,
+  },
+  trailingSlash: true, // Crucial for Hostinger folder structure
 };
 
 export default nextConfig;

@@ -31,13 +31,17 @@ const RegisterPage = () => {
 
             const res = await axios.post(API_URL, formData);
 
-            if (res.data.token) {
-                setAuth(res.data, res.data.token);
-                router.push('/dashboard');
+            if (res.data.success) {
+                setLoading(false);
+                // SHOW APPROVAL MESSAGE INSTEAD OF REDIRECT
+                alert("✅ Registration Successful!\n\nYour account is pending Admin Approval. Please contact the administrator or wait for activation.");
+                router.push('/login');
+            } else {
+                setError(res.data.message || 'Registration failed');
+                setLoading(false);
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Try again.');
-        } finally {
             setLoading(false);
         }
     };

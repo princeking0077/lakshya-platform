@@ -5,8 +5,10 @@ import { motion } from 'framer-motion';
 import { Plus, Trash2, Edit, BookOpen, Clock, Tag } from 'lucide-react';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config';
+import { useRouter } from 'next/navigation';
 
 const CoursesPage = () => {
+    const router = useRouter();
     const [courses, setCourses] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -22,9 +24,14 @@ const CoursesPage = () => {
     const fetchCourses = async () => {
         try {
             const res = await axios.get(`${API_BASE_URL}/api/courses`);
-            setCourses(res.data.data);
+            if (res.data && Array.isArray(res.data.data)) {
+                setCourses(res.data.data);
+            } else {
+                setCourses([]);
+            }
         } catch (error) {
             console.error('Error fetching courses:', error);
+            setCourses([]);
         } finally {
             setLoading(false);
         }
@@ -34,7 +41,8 @@ const CoursesPage = () => {
         if (confirm('Are you sure you want to delete this course?')) {
             try {
                 await axios.delete(`${API_BASE_URL}/api/courses/${id}`);
-                setCourses(courses.filter(c => c._id !== id));
+                const currentCourses = Array.isArray(courses) ? courses : [];
+                setCourses(currentCourses.filter(c => c._id !== id));
             } catch (error) {
                 alert('Error deleting course');
             }
@@ -96,7 +104,7 @@ const CoursesPage = () => {
                             <div className="flex items-center justify-between mt-4 text-sm">
                                 <span className="font-bold text-green-400">₹{course.price}</span>
                                 <div className="flex gap-2">
-                                    <button className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                                    <button onClick={() => router.push(`/admin/course-editor?id=${course._id}`)} className="p-2 text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
                                         <Edit size={16} />
                                     </button>
                                     <button

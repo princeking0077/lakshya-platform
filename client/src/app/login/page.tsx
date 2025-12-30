@@ -27,17 +27,30 @@ const LoginPage = () => {
         setError('');
 
         try {
-            // Replace with your actual API URL. For now using localhost based on setup
+            // Updated API URL to ensure no double slashes
             const API_URL = `${API_BASE_URL}/api/auth/login`;
+
+            console.log("Attempting login to:", API_URL); // Debug log
 
             const res = await axios.post(API_URL, formData);
 
-            if (res.data.token) {
-                setAuth(res.data, res.data.token);
-                // Redirect based on role in future
-                router.push('/dashboard');
+            console.log("Login Response:", res.data); // Debug log
+
+            if (res.data.success && res.data.token) {
+                const userData = res.data.data;
+                setAuth(userData, res.data.token);
+
+                // Role-Based Redirect
+                if (userData.role === 'admin') {
+                    router.push('/admin/courses');
+                } else {
+                    router.push('/student/dashboard');
+                }
+            } else {
+                setError(res.data.message || 'Login failed');
             }
         } catch (err: any) {
+            console.error("Login Error:", err);
             setError(err.response?.data?.message || 'Login failed. Please check credentials.');
         } finally {
             setLoading(false);
