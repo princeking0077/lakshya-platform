@@ -65,8 +65,32 @@ app.get(/.*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'client_build/index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+// CRASH PREVENTION
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+  // Keep alive if possible, or exit gracefully
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('UNHANDLED REJECTION:', reason);
+});
 
+// Setup Route (Direct)
+app.get('/setup-db', async (req, res) => {
+  try {
+    await initDB();
+    res.status(200).json({ success: true, message: 'Database Initialized and Admin Reset!' });
+  } catch (error) {
+    console.error("Setup Error:", error);
+    res.status(500).json({ success: false, message: 'Setup Failed: ' + error.message });
+  }
+});
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.status(200).send('Server is Running! DB Status: ' + (pool ? 'Pool Created' : 'No Pool'));
+});
+
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
