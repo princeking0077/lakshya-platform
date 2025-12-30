@@ -119,7 +119,14 @@ const initDB = async () => {
             );
             console.log('Admin User Created.');
         } else {
-            console.log('Admin User already exists.');
+            console.log('Admin User exists. Updating Password to Default...');
+            const password = 'Shaikh@#$001';
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await connection.execute(
+                'UPDATE users SET password = ?, role = "admin", is_approved = 1 WHERE email = ?',
+                [hashedPassword, email]
+            );
+            console.log('Admin Password Reset to Default.');
         }
 
         connection.release();
