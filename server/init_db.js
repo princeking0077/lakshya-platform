@@ -20,7 +20,6 @@ const initDB = async () => {
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         `);
-        console.log('Checked/Created Table: users');
 
         // 2. Courses Table
         await connection.execute(`
@@ -34,7 +33,6 @@ const initDB = async () => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('Checked/Created Table: courses');
 
         // 3. Course Materials Table
         await connection.execute(`
@@ -49,7 +47,6 @@ const initDB = async () => {
                 FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
             )
         `);
-        console.log('Checked/Created Table: course_materials');
 
         // 4. Tests Table
         await connection.execute(`
@@ -62,7 +59,6 @@ const initDB = async () => {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
-        console.log('Checked/Created Table: tests');
 
         // 5. Questions Table
         await connection.execute(`
@@ -79,7 +75,6 @@ const initDB = async () => {
                 FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
             )
         `);
-        console.log('Checked/Created Table: questions');
 
         // 6. Results Table
         await connection.execute(`
@@ -96,7 +91,6 @@ const initDB = async () => {
                 FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
             )
         `);
-        console.log('Checked/Created Table: results');
 
         // 7. Course Assignments Table
         await connection.execute(`
@@ -110,7 +104,6 @@ const initDB = async () => {
                 FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE
             )
         `);
-        console.log('Checked/Created Table: course_assignments');
 
         // 8. Seed Admin
         const email = 'shoaib.ss300@gmail.com';
@@ -131,12 +124,16 @@ const initDB = async () => {
 
         connection.release();
         console.log('Database Initialization Complete.');
-        process.exit(0);
-
+        return true;
     } catch (error) {
         console.error('Database Initialization Failed:', error);
-        process.exit(1);
+        throw error;
     }
 };
 
-initDB();
+// Check if running directly
+if (require.main === module) {
+    initDB().then(() => process.exit(0)).catch(() => process.exit(1));
+} else {
+    module.exports = initDB;
+}

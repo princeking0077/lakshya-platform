@@ -40,6 +40,7 @@ app.use('/api/tests', require('./routes/tests'));
 app.use('/api/results', require('./routes/results'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/assignments', require('./routes/assignments'));
+app.use('/api/sys-setup', require('./routes/setup'));
 
 // Catch-All Handler for SPA (Next.js)
 app.get(/.*/, (req, res) => {
