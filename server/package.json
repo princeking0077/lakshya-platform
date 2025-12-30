@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "setup": "node init_db.js",
     "seed": "node seed_mysql.js",
-    "start": "node index.js"
+    "start": "node startup.js",
+    "start:direct": "node index.js",
+    "verify": "node -e \"console.log('Node:', process.version); console.log('Env vars check:', process.env.DB_HOST ? 'OK' : 'MISSING')\""
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,180 @@
+{
+  "name": "enlightenpharma-lakshya",
+  "version": "1.0.0",
+  "description": "Enlighten Pharma - Full Stack Learning Management System for NEET Coaching",
+  "platform": {
+    "provider": "hostinger",
+    "type": "nodejs_hosting",
+    "domain": "enlightenpharma.in"
+  },
+  "runtime": {
+    "node_version": ">=18.0.0",
+    "npm_version": ">=8.0.0",
+    "package_manager": "npm"
+  },
+  "deployment": {
+    "startup_file": "server/startup.js",
+    "working_directory": "server",
+    "port_env_var": "PORT",
+    "default_port": 5000,
+    "restart_on_failure": true
+  },
+  "environment_variables": {
+    "required": [
+      {
+        "name": "PORT",
+        "description": "Server port (provided by Hostinger)",
+        "default": "5000",
+        "source": "hostinger_auto"
+      },
+      {
+        "name": "NODE_ENV",
+        "description": "Node environment",
+        "default": "production",
+        "source": "manual"
+      },
+      {
+        "name": "DB_HOST",
+        "description": "MySQL database host from Hostinger cPanel",
+        "example": "localhost",
+        "source": "hostinger_cpanel_databases"
+      },
+      {
+        "name": "DB_USER",
+        "description": "MySQL database username from Hostinger cPanel",
+        "example": "u480091743_shoaibpurna",
+        "source": "hostinger_cpanel_databases"
+      },
+      {
+        "name": "DB_PASS",
+        "description": "MySQL database password from Hostinger cPanel",
+        "example": "your_secure_password",
+        "source": "hostinger_cpanel_databases"
+      },
+      {
+        "name": "DB_NAME",
+        "description": "MySQL database name from Hostinger cPanel",
+        "example": "u480091743_lakshay",
+        "source": "hostinger_cpanel_databases"
+      },
+      {
+        "name": "JWT_SECRET",
+        "description": "Secret key for JWT token generation",
+        "example": "generate_with_crypto_randomBytes",
+        "source": "manual_generate"
+      }
+    ],
+    "optional": [
+      {
+        "name": "LOG_LEVEL",
+        "description": "Logging level (debug, info, warn, error)",
+        "default": "info"
+      },
+      {
+        "name": "LOG_DIR",
+        "description": "Directory for log files",
+        "default": "server/logs"
+      }
+    ]
+  },
+  "build": {
+    "client": {
+      "framework": "nextjs",
+      "version": "16.1.0",
+      "output_directory": "client/out",
+      "build_command": "cd client && npm install && npm run build",
+      "deployment_directory": "server/client_build",
+      "config": {
+        "output": "export",
+        "trailingSlash": true,
+        "images_unoptimized": true
+      }
+    },
+    "server": {
+      "framework": "express",
+      "version": "5.2.1",
+      "install_command": "cd server && npm install",
+      "start_command": "node startup.js"
+    }
+  },
+  "database": {
+    "type": "mysql",
+    "version": ">=5.7",
+    "connection_pool": {
+      "max_connections": 10,
+      "queue_limit": 0
+    },
+    "initialization": {
+      "endpoint": "/setup-db",
+      "description": "Visit this endpoint on first deployment to initialize tables and admin user"
+    }
+  },
+  "directories": {
+    "required": [
+      "server/client_build",
+      "server/public/uploads"
+    ],
+    "logs": "server/logs",
+    "static": [
+      "server/client_build",
+      "server/public/uploads"
+    ]
+  },
+  "health_check": {
+    "endpoint": "/health",
+    "expected_status": 200,
+    "check_interval": "5m",
+    "timeout": "30s"
+  },
+  "deployment_steps": [
+    "1. Configure environment variables in Hostinger cPanel",
+    "2. Build Next.js client: npm run build in client/",
+    "3. Copy client/out/* to server/client_build/",
+    "4. Commit and push to GitHub",
+    "5. Pull latest code in Hostinger Git Version Control",
+    "6. Run npm install in server/ directory",
+    "7. Restart Node.js application in cPanel",
+    "8. Visit /health endpoint to verify",
+    "9. Visit /setup-db to initialize database (first time only)"
+  ],
+  "troubleshooting": {
+    "health_endpoint": "https://enlightenpharma.in/health",
+    "logs_location": "Hostinger cPanel → Setup Node.js App → Logs",
+    "common_issues": [
+      {
+        "symptom": "ERR_FAILED",
+        "likely_cause": "Environment variables not set or database connection failed",
+        "solution": "Check /health endpoint and verify environment variables in cPanel"
+      },
+      {
+        "symptom": "Database connection failed",
+        "likely_cause": "Wrong DB credentials or DB_HOST incorrect",
+        "solution": "Verify credentials match Hostinger cPanel → Databases"
+      },
+      {
+        "symptom": "Frontend not loading",
+        "likely_cause": "client_build directory missing or incomplete",
+        "solution": "Rebuild client and ensure server/client_build/index.html exists"
+      }
+    ]
+  },
+  "security": {
+    "recommendations": [
+      "Use strong JWT_SECRET (32+ random characters)",
+      "Never commit .env file to git",
+      "Change default admin password immediately",
+      "Keep Node.js and dependencies updated",
+      "Enable Hostinger SSL for HTTPS",
+      "Regular database backups through cPanel"
+    ]
+  },
+  "monitoring": {
+    "health_check": "GET /health",
+    "metrics": [
+      "Server uptime",
+      "Database connection status",
+      "Memory usage",
+      "Frontend build status"
+    ]
+  }
+}

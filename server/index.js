@@ -58,6 +58,7 @@ app.use('/api/tests', require('./routes/tests'));
 app.use('/api/results', require('./routes/results'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/assignments', require('./routes/assignments'));
+app.use('/health', require('./routes/health'));
 // app.use('/api/sys-setup', require('./routes/setup')); // Removed in favor of direct route
 
 // Catch-All Handler for SPA (Next.js)
@@ -70,24 +71,8 @@ process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err);
   // Keep alive if possible, or exit gracefully
 });
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   console.error('UNHANDLED REJECTION:', reason);
-});
-
-// Setup Route (Direct)
-app.get('/setup-db', async (req, res) => {
-  try {
-    await initDB();
-    res.status(200).json({ success: true, message: 'Database Initialized and Admin Reset!' });
-  } catch (error) {
-    console.error("Setup Error:", error);
-    res.status(500).json({ success: false, message: 'Setup Failed: ' + error.message });
-  }
-});
-
-// Health Check
-app.get('/health', (req, res) => {
-  res.status(200).send('Server is Running! DB Status: ' + (pool ? 'Pool Created' : 'No Pool'));
 });
 
 const PORT = process.env.PORT || 5000;
