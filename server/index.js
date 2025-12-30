@@ -13,6 +13,12 @@ connectDB();
 
 const app = express();
 
+console.log('-----------------------------------');
+console.log('   LAKSHYA SERVER STARTING...      ');
+console.log('-----------------------------------');
+console.log('Current Directory:', __dirname);
+console.log('Static Files Path:', path.join(__dirname, 'client_build'));
+
 // Security Headers
 app.use(helmet({
   contentSecurityPolicy: false, // Disable CSP for now to avoid static file issues
