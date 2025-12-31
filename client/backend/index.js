@@ -17,22 +17,36 @@ console.log('-----------------------------------');
 console.log('   LAKSHYA SERVER STARTING...      ');
 console.log('-----------------------------------');
 console.log('Current Directory:', __dirname);
-console.log('Static Files Path:', path.join(__dirname, '../out'));
 
-// Security Headers
-app.use(helmet({
-  contentSecurityPolicy: false, // Disable CSP for now to avoid static file issues
-}));
+// DEBUG ROUTE (Placed at top to avoid interference)
+app.get(['/api/debug-files', '/api/debug-files/'], (req, res) => {
+  // Check multiple possible paths
+  const possiblePaths = [
+    path.resolve(__dirname, '../out'),
+    path.join(process.cwd(), 'out'),
+    path.join(process.cwd(), 'client/out'),
+    path.resolve(__dirname, 'client_build')
+  ];
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000, // Increased limit for static resources
+  const fs = require('fs');
+  let validPath = null;
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      validPath = p;
+      break;
+    }
+  }
+
+  res.json({
+    message: 'Debug Endpoint Active',
+    cwd: process.cwd(),
+    dirname: __dirname,
+    detectedStaticPath: validPath,
+    pathsChecked: possiblePaths,
+    filesInStatic: validPath ? fs.readdirSync(validPath) : [],
+    timestamp: new Date().toISOString()
+  });
 });
-app.use(limiter);
-
-app.use(cors());
-app.use(express.json());
 
 // Serve Static Frontend (Self-Contained)
 // Try multiple paths to find the 'out' directory
