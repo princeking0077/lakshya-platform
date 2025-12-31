@@ -10,12 +10,46 @@ const { connectDB } = require('./config/db');
 dotenv.config();
 
 // Connect to Database
-connectDB();
+// connectDB(); // DISABLED FOR DEBUGGING 503 ERRORS
 
 const app = express();
-app.set('trust proxy', 1); // Trust first proxy (Hostinger/Cloudflare)
+app.set('trust proxy', 1);
 
-// --- IN-MEMORY ACCESS LOG (For Debugging) ---
+// ... (Logs remain) ...
+
+// --- MANUAL STATIC FILE HANDLER (To debug 503s) ---
+app.get('/_next/*', (req, res) => {
+  if (!staticPath) return res.status(500).send('Static path not found');
+
+  // Clean the URL to get relative path
+  // request: /_next/static/chunks/foo.js
+  // file: out/_next/static/chunks/foo.js
+  const relativePath = req.path; // /_next/...
+  const fullPath = path.join(staticPath, relativePath);
+
+  console.log(`[Manual Serve] Request: ${req.path} -> resolving to: ${fullPath}`);
+
+  if (fs.existsSync(fullPath)) {
+    res.sendFile(fullPath, (err) => {
+      if (err) {
+        console.error(`Error sending file ${fullPath}:`, err);
+        if (!res.headersSent) res.status(500).send('File send error');
+      }
+    });
+  } else {
+    // Try without /_next prefix if structure differs?
+    // e.g. out/static/chunks/foo.js?
+    // standard next export puts _next folder inside out.
+    console.log(`[Manual Serve] File not found: ${fullPath}`);
+    res.status(404).send('Not found');
+  }
+});
+
+// Routes
+// const initDB = require('./init_db');
+app.get('/setup-db', async (req, res) => {
+  res.send('DB Setup Disabled');
+});
 const requestLogs = [];
 app.use((req, res, next) => {
   const logEntry = {
