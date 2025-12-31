@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Play, TrendingUp, Clock, BookOpen, ChevronRight, FileText } from 'lucide-react';
+import { Play, TrendingUp, Clock, BookOpen, ChevronRight, FileText, Award } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import { API_BASE_URL } from '@/config';
@@ -93,6 +93,68 @@ const StudentDashboard = () => {
                     <h3 className="text-4xl font-black text-white mb-1">--</h3>
                     <p className="text-sm text-gray-500">Check Results Page</p>
                 </motion.div>
+            </div>
+
+            {/* LMS Study Zone */}
+            <div>
+                <h2 className="text-xl font-bold text-white mb-6">Study Zone</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {/* Subject-wise Tests */}
+                    <Link href="/student/tests?category=subject">
+                        <motion.div
+                            whileHover={{ y: -5 }}
+                            className="h-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-blue-500/50 transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center mb-4 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                <BookOpen size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Subject-wise Tests</h3>
+                            <p className="text-sm text-gray-400">Pharmaceutics, Pharmacology, Chemistry, Pharmacognosy folders.</p>
+                        </motion.div>
+                    </Link>
+
+                    {/* Daily Practice Papers */}
+                    <Link href="/student/tests?category=dpp">
+                        <motion.div
+                            whileHover={{ y: -5 }}
+                            className="h-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-emerald-500/50 transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-4 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                <Clock size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Daily Practice Papers</h3>
+                            <p className="text-sm text-gray-400">One new test daily. 24h Challenge. Detailed solutions.</p>
+                        </motion.div>
+                    </Link>
+
+                    {/* Weekly Tests */}
+                    <Link href="/student/tests?category=weekly">
+                        <motion.div
+                            whileHover={{ y: -5 }}
+                            className="h-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-purple-500/50 transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center mb-4 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                                <TrendingUp size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Weekly Tests</h3>
+                            <p className="text-sm text-gray-400">Full syllabus revision every Sunday. Live Leaderboard.</p>
+                        </motion.div>
+                    </Link>
+
+                    {/* Mock Tests */}
+                    <Link href="/student/tests?category=mock">
+                        <motion.div
+                            whileHover={{ y: -5 }}
+                            className="h-full bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-amber-500/50 transition-all group"
+                        >
+                            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                <Award size={24} />
+                            </div>
+                            <h3 className="text-lg font-bold text-white mb-2">Full Mock Tests</h3>
+                            <p className="text-sm text-gray-400">GPAT, NIPER, DI Full-Length Mocks with Analytics.</p>
+                        </motion.div>
+                    </Link>
+                </div>
             </div>
 
             {/* My Courses Section */}

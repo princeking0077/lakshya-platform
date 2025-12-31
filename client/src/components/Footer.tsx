@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Youtube, Send } from 'lucide-react';
 
 const Footer = () => {
     return (
@@ -10,12 +10,12 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     {/* Brand */}
                     <div className="col-span-1 md:col-span-1">
-                        <h2 className="text-3xl font-extrabold text-white tracking-tight mb-4">LAKSHYA</h2>
+                        <h2 className="text-3xl font-extrabold text-white tracking-tight mb-4">Enlighten<span className="text-blue-500">Pharma</span></h2>
                         <p className="text-sm text-gray-500 mb-6 leading-relaxed">
-                            Empowering pharmacy students to achieve their dreams through structured learning, expert guidance, and consistent practice.
+                            India’s leading platform for pharmacy exam preparation. Empowering students to achieve academic and professional excellence.
                         </p>
                         <div className="flex gap-4">
-                            {[Facebook, Twitter, Instagram, Linkedin].map((Icon, idx) => (
+                            {[Facebook, Instagram, Youtube, Send].map((Icon, idx) => (
                                 <a key={idx} href="#" className="w-10 h-10 rounded-full bg-zinc-900 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all">
                                     <Icon className="w-5 h-5" />
                                 </a>
@@ -25,13 +25,12 @@ const Footer = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-white font-bold mb-6">Quick Links</h3>
+                        <h3 className="text-white font-bold mb-6">Explore</h3>
                         <ul className="space-y-3 text-sm">
                             <li><a href="#" className="hover:text-blue-400 transition-colors">Home</a></li>
-                            <li><a href="#courses" className="hover:text-blue-400 transition-colors">Courses</a></li>
-                            <li><a href="#features" className="hover:text-blue-400 transition-colors">Features</a></li>
-                            <li><a href="#how-it-works" className="hover:text-blue-400 transition-colors">Success Stories</a></li>
-                            <li><a href="#" className="hover:text-blue-400 transition-colors">Contact Us</a></li>
+                            <li><a href="#courses" className="hover:text-blue-400 transition-colors">All Courses</a></li>
+                            <li><a href="#about" className="hover:text-blue-400 transition-colors">About Us</a></li>
+                            <li><a href="#contact" className="hover:text-blue-400 transition-colors">Contact</a></li>
                         </ul>
                     </div>
 
@@ -41,42 +40,34 @@ const Footer = () => {
                         <ul className="space-y-4 text-sm">
                             <li className="flex items-start gap-3">
                                 <MapPin className="w-5 h-5 text-blue-500 shrink-0" />
-                                <span>123 Education Hub, Pune, Maharashtra 411001</span>
+                                <span>Kranti Nagar, Near Nanded Railway Gate, Purna, Dist. Parbhani – 431511</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone className="w-5 h-5 text-blue-500 shrink-0" />
-                                <span>+91 98765 43210</span>
+                                <span>+91-9975900664</span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Mail className="w-5 h-5 text-blue-500 shrink-0" />
-                                <span>support@lakshya.edu.in</span>
+                                <span className="break-all">enlightenpharmaacademy@gmail.com</span>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Newsletter */}
+                    {/* Legal */}
                     <div>
-                        <h3 className="text-white font-bold mb-6">Newsletter</h3>
-                        <p className="text-sm text-gray-500 mb-4">Subscribe to get updates on new batches and exam notifications.</p>
-                        <div className="relative group">
-                            <input
-                                type="email"
-                                placeholder="Your email address"
-                                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-white focus:outline-none focus:border-blue-500 transition-colors"
-                            />
-                            <button className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-blue-600 rounded-md text-white hover:bg-blue-500 transition-transform group-focus-within:translate-x-1">
-                                <Send className="w-4 h-4" />
-                            </button>
-                        </div>
+                        <h3 className="text-white font-bold mb-6">Legal</h3>
+                        <ul className="space-y-3 text-sm">
+                            <li><a href="#" className="hover:text-blue-400 transition-colors">Terms & Conditions</a></li>
+                            <li><a href="#" className="hover:text-blue-400 transition-colors">Privacy Policy</a></li>
+                            <li><a href="#" className="hover:text-blue-400 transition-colors">Refund Policy</a></li>
+                            <li><a href="#" className="hover:text-blue-400 transition-colors">Copyright Policy</a></li>
+                        </ul>
                     </div>
                 </div>
 
                 <div className="border-t border-zinc-900 py-8 text-center text-sm text-gray-600 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p>© 2024 LAKSHYA Academy. All rights reserved.</p>
-                    <div className="flex gap-6">
-                        <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-                    </div>
+                    <p>© 2024 Enlighten Pharma Academy. All rights reserved.</p>
+                    <p>Made with ❤️ for Pharmacy Students</p>
                 </div>
             </div>
         </footer>
