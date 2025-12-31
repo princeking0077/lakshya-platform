@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LAKSHYA - GPAT & MPSC Preparation",
+  title: "Enlighten Pharma Academy",
   description: "Premier coaching platform for GPAT 2026 and MPSC Drug Inspector exams.",
 };
 
