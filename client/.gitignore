@@ -14,7 +14,7 @@
 /coverage
 
 # next.js
-# /.next/  # Commented out to commit build files for Hostinger deployment
+/.next/
 # /out/  # Commented out to commit static export for Hostinger
 
 # production

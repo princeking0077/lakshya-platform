@@ -1,5 +1,0 @@
-1:"$Sreact.fragment"
-2:I[74470,["/_next/static/chunks/a8e83d4113c50e04.js","/_next/static/chunks/490b65522634baba.js"],"OutletBoundary"]
-3:"$Sreact.suspense"
-0:{"buildId":"w2Dq31DtXLlNec7zSNvhu","rsc":["$","$1","c",{"children":[["$","main",null,{"className":"min-h-screen bg-black text-white pt-24 pb-16","children":["$","div",null,{"className":"container mx-auto px-6 max-w-4xl","children":[["$","h1",null,{"className":"text-4xl md:text-5xl font-bold mb-12 text-blue-500","children":"Copyright Policy"}],["$","div",null,{"className":"prose prose-invert prose-lg max-w-none text-gray-300","children":["$","div",null,{"className":"space-y-4","children":[["$","p",null,{"children":"Enlighten Pharma Academy reserves all rights to the content on this platform."}],["$","p",null,{"children":"Any reproduction or redistribution of materials without permission is strictly prohibited and legal action may be taken."}]]}]}]]}]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
-4:null
