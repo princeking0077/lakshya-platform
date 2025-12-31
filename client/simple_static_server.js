@@ -22,7 +22,9 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+    const logMessage = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
+    console.log(logMessage.trim());
+    fs.appendFile('access.log', logMessage, (err) => { /* ignore logging errors */ });
 
     // 1. Handle Debug Endpoint
     if (req.url === '/test-debug') {
