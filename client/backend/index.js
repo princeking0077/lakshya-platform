@@ -90,7 +90,7 @@ app.use('/api/assignments', require('./routes/assignments'));
 app.use('/health', require('./routes/health'));
 
 // Debug Route: List files in static directory
-app.get('/api/debug-files', (req, res) => {
+app.get(/\/api\/debug-files\/?/, (req, res) => {
   const nextPath = path.join(staticPath, '_next');
 
   const result = {
