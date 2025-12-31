@@ -14,9 +14,9 @@ if (missingVars.length > 0) {
 
 const dbConfig = {
     host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
+    user: process.env.DB_USER || 'dummy_user',
+    password: process.env.DB_PASS || 'dummy_pass',
+    database: process.env.DB_NAME || 'dummy_db',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
@@ -26,9 +26,12 @@ console.log('Database Configuration:', {
     host: dbConfig.host,
     user: dbConfig.user,
     database: dbConfig.database,
+    hasPassword: !!process.env.DB_PASS,
     // Never log password
 });
 
+// Create pool with dummy values if env vars missing
+// This allows server to start and show proper error messages
 const pool = mysql.createPool(dbConfig);
 
 const connectDB = async () => {

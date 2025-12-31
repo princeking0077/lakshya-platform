@@ -76,6 +76,14 @@ app.get('/api/debug-server', (req, res) => {
         environment: process.env.NODE_ENV || 'development',
         cwd: process.cwd(),
         startupError: startupError,
+        envVars: {
+            DB_HOST: process.env.DB_HOST || 'NOT_SET',
+            DB_USER: process.env.DB_USER ? 'SET' : 'NOT_SET',
+            DB_PASS: process.env.DB_PASS ? 'SET' : 'NOT_SET',
+            DB_NAME: process.env.DB_NAME ? 'SET' : 'NOT_SET',
+            JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT_SET',
+            PORT: process.env.PORT || 'NOT_SET'
+        },
         paths: {
             out: outPath,
             outExists: fs.existsSync(outPath),
