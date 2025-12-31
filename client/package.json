@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node test_server.js",
+    "start": "node index.js",
     "lint": "eslint"
   },
   "dependencies": {
