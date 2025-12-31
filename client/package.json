@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node index.js",
+    "start": "node simple_static_server.js",
     "lint": "eslint"
   },
   "dependencies": {
