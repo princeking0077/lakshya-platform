@@ -10,10 +10,10 @@ const { connectDB } = require('./config/db');
 dotenv.config();
 
 // Connect to Database
-// connectDB(); // DISABLED FOR DEBUGGING 503 ERRORS
+connectDB();
 
 const app = express();
-app.set('trust proxy', 1);
+app.set('trust proxy', true); // Trust proxy (Hostinger/Cloudflare)
 
 // ... (Logs remain) ...
 
@@ -37,9 +37,6 @@ app.get('/_next/*', (req, res) => {
       }
     });
   } else {
-    // Try without /_next prefix if structure differs?
-    // e.g. out/static/chunks/foo.js?
-    // standard next export puts _next folder inside out.
     console.log(`[Manual Serve] File not found: ${fullPath}`);
     res.status(404).send('Not found');
   }
