@@ -120,6 +120,12 @@
       "namedRegex": "^/admin/tests/create(?:/)?$"
     },
     {
+      "page": "/api/setup-db",
+      "regex": "^/api/setup\\-db(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/setup\\-db(?:/)?$"
+    },
+    {
       "page": "/contact",
       "regex": "^/contact(?:/)?$",
       "routeKeys": {},
@@ -142,6 +148,12 @@
       "regex": "^/register(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/register(?:/)?$"
+    },
+    {
+      "page": "/setup-db",
+      "regex": "^/setup\\-db(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/setup\\-db(?:/)?$"
     },
     {
       "page": "/student/course-player",
