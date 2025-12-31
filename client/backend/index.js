@@ -1,10 +1,11 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 const { connectDB } = require('./config/db');
-const path = require('path');
 
 dotenv.config();
 
@@ -13,78 +14,87 @@ connectDB();
 
 const app = express();
 
-console.log('-----------------------------------');
-console.log('   LAKSHYA SERVER STARTING...      ');
-console.log('-----------------------------------');
-console.log('Current Directory:', __dirname);
-
-// DEBUG ROUTE (Placed at top to avoid interference)
-app.get(['/api/debug-files', '/api/debug-files/'], (req, res) => {
-  // Check multiple possible paths
-  const possiblePaths = [
-    path.resolve(__dirname, '../out'),
-    path.join(process.cwd(), 'out'),
-    path.join(process.cwd(), 'client/out'),
-    path.resolve(__dirname, 'client_build')
-  ];
-
-  const fs = require('fs');
-  let validPath = null;
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      validPath = p;
-      break;
-    }
-  }
-
-  res.json({
-    message: 'Debug Endpoint Active',
-    cwd: process.cwd(),
-    dirname: __dirname,
-    detectedStaticPath: validPath,
-    pathsChecked: possiblePaths,
-    filesInStatic: validPath ? fs.readdirSync(validPath) : [],
-    timestamp: new Date().toISOString()
-  });
+// --- IN-MEMORY ACCESS LOG (For Debugging) ---
+const requestLogs = [];
+app.use((req, res, next) => {
+  const logEntry = {
+    method: req.method,
+    url: req.url,
+    time: new Date().toISOString(),
+    ip: req.ip
+  };
+  requestLogs.unshift(logEntry);
+  if (requestLogs.length > 50) requestLogs.pop(); // Keep last 50
+  console.log(`${logEntry.method} ${logEntry.url}`);
+  next();
 });
 
-// Serve Static Frontend (Self-Contained)
-// Try multiple paths to find the 'out' directory
+// --- CONFIGURATION ---
+const PORT = process.env.PORT || 3000;
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+});
+app.use(limiter);
+app.use(cors());
+app.use(express.json());
+
+// --- PATH FINDING LOGIC ---
 const possiblePaths = [
-  path.resolve(__dirname, '../out'),       // If running from client/backend
-  path.join(process.cwd(), 'out'),         // If running from client root
-  path.join(process.cwd(), 'client/out'),  // If running from project root
-  path.resolve(__dirname, 'client_build')  // Fallback to old build
+  path.resolve(__dirname, '../out'),
+  path.join(process.cwd(), 'out'),
+  path.join(process.cwd(), 'client/out'),
+  path.resolve(__dirname, 'client_build')
 ];
 
-let staticPath = possiblePaths[0]; // Default
-let foundPath = false;
-
-const fs = require('fs');
+let staticPath = null;
 for (const p of possiblePaths) {
   if (fs.existsSync(p)) {
     staticPath = p;
-    foundPath = true;
-    console.log(`✓ Found static files at: ${staticPath}`);
+    console.log(`✓ Serving static files from: ${staticPath}`);
     break;
   }
 }
 
-if (!foundPath) {
-  console.error('CRITICAL: Could not find static build directory!');
-  console.error('Checked paths:', possiblePaths);
+if (!staticPath) {
+  console.error('CRITICAL: No static build directory found!');
 }
 
-// Explicitly serve _next folder to ensure assets load
-app.use('/_next', express.static(path.join(staticPath, '_next')));
-app.use(express.static(staticPath));
+// --- DEBUG ENDPOINTS (Must be before static) ---
+app.get(['/debug', '/api/debug', '/api/debug-files', '/api/debug-files/'], (req, res) => {
+  const nextPath = staticPath ? path.join(staticPath, '_next') : 'N/A';
+  res.json({
+    status: 'online',
+    staticPath,
+    nextPath,
+    nextExists: staticPath ? fs.existsSync(nextPath) : false,
+    cwd: process.cwd(),
+    dirname: __dirname,
+    logs: requestLogs
+  });
+});
+
+// --- STATIC FILE SERVING ---
+if (staticPath) {
+  // 1. Explicitly serve _next with dotfiles allowed
+  // Important: next.js assets requests start with /_next/
+  app.use('/_next', express.static(path.join(staticPath, '_next'), {
+    dotfiles: 'allow',
+    fallthrough: false
+  }));
+
+  // 2. Serve root files
+  app.use(express.static(staticPath, {
+    dotfiles: 'allow'
+  }));
+}
 
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-// Routes
+// --- API ROUTES ---
 const initDB = require('./init_db');
-
-// Setup Route (Direct)
 app.get('/setup-db', async (req, res) => {
   try {
     await initDB();
@@ -103,41 +113,22 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/health', require('./routes/health'));
 
-// Debug Route: List files in static directory
-app.get(/\/api\/debug-files\/?/, (req, res) => {
-  const nextPath = path.join(staticPath, '_next');
 
-  const result = {
-    cwd: process.cwd(),
-    dirname: __dirname,
-    selectedStaticPath: staticPath,
-    exists: {
-      static: fs.existsSync(staticPath),
-      next: fs.existsSync(nextPath)
-    },
-    checkedPaths: possiblePaths,
-    filesInStatic: fs.existsSync(staticPath) ? fs.readdirSync(staticPath) : [],
-    // filesInNext: fs.existsSync(nextPath) ? fs.readdirSync(nextPath) : [] // Commented to avoid huge list
-  };
-  res.json(result);
-});
-// app.use('/api/sys-setup', require('./routes/setup')); // Removed in favor of direct route
-
-// Catch-All Handler for SPA (Next.js)
-app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(staticPath, 'index.html'));
+// --- CATCH-ALL (SPA Support) ---
+app.get('*', (req, res) => {
+  if (staticPath && fs.existsSync(path.join(staticPath, 'index.html'))) {
+    res.sendFile(path.join(staticPath, 'index.html'));
+  } else {
+    res.status(404).send('Site is building or maintenance mode. (No static files found)');
+  }
 });
 
 // CRASH PREVENTION
 process.on('uncaughtException', (err) => {
   console.error('UNCAUGHT EXCEPTION:', err);
-  // Keep alive if possible, or exit gracefully
 });
 process.on('unhandledRejection', (reason) => {
   console.error('UNHANDLED REJECTION:', reason);
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
