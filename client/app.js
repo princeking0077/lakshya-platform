@@ -1,113 +1,88 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
+const next = require('next');
 const path = require('path');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const helmet = require('helmet');
+const { connectDB } = require('./backend/config/db');
+
+// Load environment variables
+dotenv.config();
+
+// Initialize Next.js
+const dev = process.env.NODE_ENV !== 'production';
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
 const PORT = process.env.PORT || 3000;
 
-// MIME types for Next.js assets
-const MIME_TYPES = {
-    '.html': 'text/html',
-    '.js': 'text/javascript',
-    '.css': 'text/css',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.svg': 'image/svg+xml',
-    '.ico': 'image/x-icon',
-    '.woff': 'font/woff',
-    '.woff2': 'font/woff2',
-    '.ttf': 'font/ttf',
-    '.map': 'application/json'
-};
+app.prepare().then(() => {
+    const server = express();
 
-const server = http.createServer((req, res) => {
-    const logMessage = `[${new Date().toISOString()}] ${req.method} ${req.url}\n`;
-    console.log(logMessage.trim());
-    fs.appendFile('access.log', logMessage, (err) => { /* ignore logging errors */ });
+    // Trust Proxy (Hostinger)
+    server.set('trust proxy', true);
 
-    // 1. Handle Debug Endpoint
-    if (req.url === '/test-debug') {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-            status: 'simple-server-active',
-            cwd: process.cwd(),
-            dirname: __dirname,
-            env: process.env.NODE_ENV
-        }));
-        return;
-    }
+    // Database Connection
+    connectDB();
 
-    // 2. Determine File Path
-    // Try multiple locations for 'out' folder
-    const possibleRoots = [
-        path.join(__dirname, '../out'),
-        path.join(process.cwd(), 'out'),
-        path.join(process.cwd(), 'client/out')
-    ];
+    // Middleware
+    server.use(cors());
+    server.use(express.json());
 
-    let staticRoot = null;
-    for (const root of possibleRoots) {
-        if (fs.existsSync(root)) {
-            staticRoot = root;
-            break;
-        }
-    }
+    // Security Headers (Helmet) - loosen Content-Security-Policy for Next.js
+    server.use(
+        helmet({
+            contentSecurityPolicy: false, // Let Next.js handle CSP if needed, or configure manually
+            crossOriginEmbedderPolicy: false,
+        })
+    );
 
-    if (!staticRoot) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' });
-        res.end('CRITICAL: Static build directory (out) not found on server.');
-        return;
-    }
+    // Serve 'uploads' directory from backend path
+    server.use('/uploads', express.static(path.join(__dirname, 'backend/public/uploads')));
 
-    // Normalize URL
-    let requestUrl = req.url.split('?')[0]; // Remove query params
+    // --- API ROUTES (Imported from backend folder) ---
+    // Adjust paths to point to 'backend/routes/...'
+    try {
+        server.use('/api/auth', require('./backend/routes/auth'));
+        server.use('/api/users', require('./backend/routes/users'));
+        server.use('/api/courses', require('./backend/routes/courses'));
+        server.use('/api/tests', require('./backend/routes/tests'));
+        server.use('/api/results', require('./backend/routes/results'));
+        server.use('/api/upload', require('./backend/routes/upload'));
+        server.use('/api/assignments', require('./backend/routes/assignments'));
+        server.use('/health', require('./backend/routes/health'));
 
-    // Handle root
-    if (requestUrl === '/') requestUrl = '/index.html';
-
-    let filePath = path.join(staticRoot, requestUrl);
-
-    // Security: Prevent directory traversal
-    if (!filePath.startsWith(staticRoot)) {
-        res.writeHead(403);
-        res.end('Access Denied');
-        return;
-    }
-
-    // Check if file exists
-    fs.stat(filePath, (err, stats) => {
-        if (err || !stats.isFile()) {
-            // 404 Fallback -> index.html (SPA Support)
-            // Only for non-asset requests (don't serve HTML for missing CSS)
-            if (!requestUrl.match(/\.(css|js|png|jpg|ico|json)$/)) {
-                const fallbackPath = path.join(staticRoot, 'index.html');
-                fs.readFile(fallbackPath, (err2, data) => {
-                    if (err2) {
-                        res.writeHead(404);
-                        res.end('404 Not Found');
-                    } else {
-                        res.writeHead(200, { 'Content-Type': 'text/html' });
-                        res.end(data);
-                    }
-                });
-            } else {
-                res.writeHead(404);
-                res.end('404 Not Found');
+        // DB Setup Route
+        const initDB = require('./backend/init_db');
+        server.get('/setup-db', async (req, res) => {
+            try {
+                await initDB();
+                res.status(200).json({ success: true, message: 'Database Initialized!' });
+            } catch (error) {
+                res.status(500).json({ success: false, message: 'Setup Failed: ' + error.message });
             }
-            return;
-        }
+        });
 
-        // Serve File
-        const ext = path.extname(filePath).toLowerCase();
-        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    } catch (err) {
+        console.warn("Warning: One or more API routes failed to load.", err.message);
+    }
 
-        res.writeHead(200, { 'Content-Type': contentType });
-        const readStream = fs.createReadStream(filePath);
-        readStream.pipe(res);
+    // --- DEBUG ENDPOINT ---
+    server.get('/api/debug-server', (req, res) => {
+        res.json({
+            status: 'hybrid-server-active',
+            mode: dev ? 'development' : 'production',
+            cwd: process.cwd()
+        });
     });
-});
 
-server.listen(PORT, () => {
-    console.log(`Simple Static Server running on port ${PORT}`);
+    // --- NEXT.JS HANDLER (Fallthrough for all other routes) ---
+    server.all('*', (req, res) => {
+        return handle(req, res);
+    });
+
+    server.listen(PORT, (err) => {
+        if (err) throw err;
+        console.log(`> Ready on port ${PORT} [Hybrid Express + Next.js]`);
+    });
 });
