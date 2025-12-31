@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/courses/layout,_N_T_/courses/[courseId]/layout,_N_T_/courses/[courseId]/page,_N_T_/courses/3/"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/courses/$d$courseId/__PAGE__",
+    "/courses/$d$courseId",
+    "/courses",
+    "/_index",
+    "/_head"
+  ]
+}

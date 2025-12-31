@@ -1,0 +1,37 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Testing
+coverage
+
+# Next.js
+# .next/
+# client/out/
+# client/out/
+# server/client_build/
+# Wait, we WANT server/client_build to be committed IF we want Hostinger to use it without building.
+# If Hostinger runs "npm install" in server directory, it won't build frontend unless we have a script.
+# User asked to "push to github" for "server of hostinger".
+# If I exclude it, Hostinger won't have the UI.
+# So I should UN-IGNORE it or NOT ignore it.
+# The previous lines ignored `out/` and `build/`.
+# `client/out` is ignored.
+# `server/client_build` contains the production assets.
+# I will NOT ignore server/client_build.
+
+# Misc
+.DS_Store
+*.pem
+*.zip
+*.log
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+client/.env.local

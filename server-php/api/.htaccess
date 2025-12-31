@@ -1,0 +1,29 @@
+RewriteEngine On
+RewriteBase /api/
+
+# Fix CORS Preflight
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Auth
+RewriteRule ^auth/register/?$ auth/register.php [L]
+RewriteRule ^auth/login/?$ auth/login.php [L]
+
+# Courses
+RewriteRule ^courses/?$ courses/index.php [L]
+RewriteRule ^courses/([0-9]+)/?$ courses/index.php?id=$1 [L]
+
+# Tests
+RewriteRule ^tests/?$ tests/index.php [L]
+RewriteRule ^tests/([0-9]+)/?$ tests/index.php?id=$1 [L]
+
+# Results
+RewriteRule ^results/my/?$ results/my.php [L]
+RewriteRule ^results/submit/?$ results/submit.php [L]
+
+# Users
+RewriteRule ^users/?$ users/index.php [L]
+RewriteRule ^users/([0-9]+)/?$ users/index.php?id=$1 [L]
+
+# Upload
+RewriteRule ^upload/?$ upload.php [L]
