@@ -13,6 +13,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Hostinger/Cloudflare)
 
 // --- IN-MEMORY ACCESS LOG (For Debugging) ---
 const requestLogs = [];
@@ -25,19 +26,19 @@ app.use((req, res, next) => {
   };
   requestLogs.unshift(logEntry);
   if (requestLogs.length > 50) requestLogs.pop(); // Keep last 50
-  console.log(`${logEntry.method} ${logEntry.url}`);
+  // Console log removed to reduce noise, only in memory
   next();
 });
 
 // --- CONFIGURATION ---
 const PORT = process.env.PORT || 3000;
 
-// Rate Limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
-});
-app.use(limiter);
+// Rate Limiting (DISABLED for troubleshooting 503 errors)
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000,
+//   max: 1000,
+// });
+// app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
@@ -82,7 +83,7 @@ if (staticPath) {
   // Important: next.js assets requests start with /_next/
   app.use('/_next', express.static(path.join(staticPath, '_next'), {
     dotfiles: 'allow',
-    fallthrough: false
+    fallthrough: true
   }));
 
   // 2. Serve root files
