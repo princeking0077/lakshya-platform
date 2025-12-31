@@ -42,17 +42,11 @@ app.prepare().then(() => {
 
     // --- API ROUTES (Imported from backend folder) ---
     // Adjust paths to point to 'backend/routes/...'
-    try {
-        server.use('/api/auth', require('./backend/routes/auth'));
-        server.use('/api/users', require('./backend/routes/users'));
-        server.use('/api/courses', require('./backend/routes/courses'));
-        server.use('/api/tests', require('./backend/routes/tests'));
-        server.use('/api/results', require('./backend/routes/results'));
-        server.use('/api/upload', require('./backend/routes/upload'));
-        server.use('/api/assignments', require('./backend/routes/assignments'));
-        server.use('/health', require('./backend/routes/health'));
+    let startupError = null;
 
-        // DB Setup Route
+    // --- API ROUTES (Imported from backend folder) ---
+    try {
+        // DB Setup Route (MOVED OUTSIDE LOOP to ensure it registers even if others fail)
         const initDB = require('./backend/init_db');
         server.get('/setup-db', async (req, res) => {
             try {
@@ -63,8 +57,17 @@ app.prepare().then(() => {
             }
         });
 
+        server.use('/api/auth', require('./backend/routes/auth'));
+        server.use('/api/users', require('./backend/routes/users'));
+        server.use('/api/courses', require('./backend/routes/courses'));
+        server.use('/api/tests', require('./backend/routes/tests'));
+        server.use('/api/results', require('./backend/routes/results'));
+        server.use('/api/upload', require('./backend/routes/upload'));
+        server.use('/api/assignments', require('./backend/routes/assignments'));
+        server.use('/health', require('./backend/routes/health'));
     } catch (err) {
         console.warn("Warning: One or more API routes failed to load.", err.message);
+        startupError = err.message + "\n" + err.stack;
     }
 
     // --- DEBUG ENDPOINT ---
@@ -72,7 +75,8 @@ app.prepare().then(() => {
         res.json({
             status: 'hybrid-server-active',
             mode: dev ? 'development' : 'production',
-            cwd: process.cwd()
+            cwd: process.cwd(),
+            startupError: startupError // SHOW ERROR TO USER
         });
     });
 
