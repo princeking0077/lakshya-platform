@@ -35,7 +35,13 @@ app.use(cors());
 app.use(express.json());
 
 // Serve Static Frontend (Self-Contained in ../out)
-app.use(express.static(path.join(__dirname, '../out')));
+const staticPath = path.resolve(__dirname, '../out');
+console.log('Resolved Static Path:', staticPath);
+
+// Explicitly serve _next folder to ensure assets load
+app.use('/_next', express.static(path.join(staticPath, '_next')));
+app.use(express.static(staticPath));
+
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Routes
