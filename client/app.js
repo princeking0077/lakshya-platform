@@ -67,11 +67,24 @@ try {
 
 // Debug endpoint
 app.get('/api/debug-server', (req, res) => {
+    const fs = require('fs');
+    const outPath = path.join(__dirname, 'out');
+    const adminPath = path.join(outPath, 'admin', 'index.html');
+
     res.json({
         status: 'express-static-server-active',
         environment: process.env.NODE_ENV || 'development',
         cwd: process.cwd(),
-        startupError: startupError
+        startupError: startupError,
+        paths: {
+            out: outPath,
+            outExists: fs.existsSync(outPath),
+            adminHtml: adminPath,
+            adminExists: fs.existsSync(adminPath),
+            outFiles: fs.existsSync(outPath) ? fs.readdirSync(outPath).slice(0, 20) : []
+        },
+        uptime: process.uptime(),
+        nodeVersion: process.version
     });
 });
 
