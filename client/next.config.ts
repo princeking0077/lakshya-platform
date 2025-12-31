@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // output: 'export', // DISABLED for Custom Server Mode
   images: {
     unoptimized: true,
   },
