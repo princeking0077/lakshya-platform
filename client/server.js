@@ -16,14 +16,22 @@ const handle = app.getRequestHandler();
 
 const PORT = process.env.PORT || 3000;
 
+console.log('=== Server Starting ===');
+console.log('Node Environment:', process.env.NODE_ENV);
+console.log('Port:', PORT);
+console.log('Dev Mode:', dev);
+
 app.prepare().then(() => {
+    console.log('Next.js prepared successfully');
     const server = express();
 
     // Trust Proxy (Hostinger)
     server.set('trust proxy', true);
 
-    // Database Connection
-    connectDB();
+    // Database Connection (non-blocking)
+    connectDB().catch(err => {
+        console.warn('Database connection failed, but server will continue:', err.message);
+    });
 
     // Middleware
     server.use(cors());
@@ -85,8 +93,15 @@ app.prepare().then(() => {
         return handle(req, res);
     });
 
-    server.listen(PORT, (err) => {
-        if (err) throw err;
+    server.listen(PORT, '0.0.0.0', (err) => {
+        if (err) {
+            console.error('Failed to start server:', err);
+            throw err;
+        }
         console.log(`> Ready on port ${PORT} [Hybrid Express + Next.js]`);
+        console.log(`> Server listening on http://0.0.0.0:${PORT}`);
     });
+}).catch((err) => {
+    console.error('Failed to prepare Next.js:', err);
+    process.exit(1);
 });
