@@ -65,6 +65,25 @@ app.use('/api/results', require('./routes/results'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/assignments', require('./routes/assignments'));
 app.use('/health', require('./routes/health'));
+
+// Debug Route: List files in static directory
+app.get('/debug-files', (req, res) => {
+  const fs = require('fs');
+  const staticPath = path.resolve(__dirname, '../out');
+  const nextPath = path.join(staticPath, '_next');
+
+  const result = {
+    staticPath,
+    nextPath,
+    exists: {
+      static: fs.existsSync(staticPath),
+      next: fs.existsSync(nextPath)
+    },
+    filesInStatic: fs.existsSync(staticPath) ? fs.readdirSync(staticPath) : [],
+    filesInNext: fs.existsSync(nextPath) ? fs.readdirSync(nextPath) : []
+  };
+  res.json(result);
+});
 // app.use('/api/sys-setup', require('./routes/setup')); // Removed in favor of direct route
 
 // Catch-All Handler for SPA (Next.js)
