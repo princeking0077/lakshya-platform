@@ -56,6 +56,7 @@ try {
     app.use('/api/results', require('./backend/routes/results'));
     app.use('/api/upload', require('./backend/routes/upload'));
     app.use('/api/assignments', require('./backend/routes/assignments'));
+    app.use('/api/dashboard', require('./backend/routes/dashboard'));
     app.use('/health', require('./backend/routes/health'));
 
     console.log('✓ All API routes loaded successfully');
