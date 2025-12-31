@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // output: 'export', // DISABLED for Custom Server Mode
+  output: 'export', // Static export for Hostinger compatibility
   images: {
     unoptimized: true,
   },
@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   trailingSlash: true, // Crucial for Hostinger folder structure
+  distDir: '.next', // Build output directory
 };
 
 export default nextConfig;
