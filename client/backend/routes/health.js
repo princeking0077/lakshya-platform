@@ -46,7 +46,7 @@ router.get('/', async (req, res) => {
 
     // Check frontend build
     try {
-        const clientBuildPath = path.join(__dirname, '../client_build');
+        const clientBuildPath = path.join(__dirname, '../../out');
         const indexPath = path.join(clientBuildPath, 'index.html');
 
         health.frontend.path = clientBuildPath;
