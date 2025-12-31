@@ -34,9 +34,32 @@ app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
-// Serve Static Frontend (Self-Contained in ../out)
-const staticPath = path.resolve(__dirname, '../out');
-console.log('Resolved Static Path:', staticPath);
+// Serve Static Frontend (Self-Contained)
+// Try multiple paths to find the 'out' directory
+const possiblePaths = [
+  path.resolve(__dirname, '../out'),       // If running from client/backend
+  path.join(process.cwd(), 'out'),         // If running from client root
+  path.join(process.cwd(), 'client/out'),  // If running from project root
+  path.resolve(__dirname, 'client_build')  // Fallback to old build
+];
+
+let staticPath = possiblePaths[0]; // Default
+let foundPath = false;
+
+const fs = require('fs');
+for (const p of possiblePaths) {
+  if (fs.existsSync(p)) {
+    staticPath = p;
+    foundPath = true;
+    console.log(`✓ Found static files at: ${staticPath}`);
+    break;
+  }
+}
+
+if (!foundPath) {
+  console.error('CRITICAL: Could not find static build directory!');
+  console.error('Checked paths:', possiblePaths);
+}
 
 // Explicitly serve _next folder to ensure assets load
 app.use('/_next', express.static(path.join(staticPath, '_next')));
@@ -67,20 +90,20 @@ app.use('/api/assignments', require('./routes/assignments'));
 app.use('/health', require('./routes/health'));
 
 // Debug Route: List files in static directory
-app.get('/debug-files', (req, res) => {
-  const fs = require('fs');
-  const staticPath = path.resolve(__dirname, '../out');
+app.get('/api/debug-files', (req, res) => {
   const nextPath = path.join(staticPath, '_next');
 
   const result = {
-    staticPath,
-    nextPath,
+    cwd: process.cwd(),
+    dirname: __dirname,
+    selectedStaticPath: staticPath,
     exists: {
       static: fs.existsSync(staticPath),
       next: fs.existsSync(nextPath)
     },
+    checkedPaths: possiblePaths,
     filesInStatic: fs.existsSync(staticPath) ? fs.readdirSync(staticPath) : [],
-    filesInNext: fs.existsSync(nextPath) ? fs.readdirSync(nextPath) : []
+    // filesInNext: fs.existsSync(nextPath) ? fs.readdirSync(nextPath) : [] // Commented to avoid huge list
   };
   res.json(result);
 });
@@ -88,7 +111,7 @@ app.get('/debug-files', (req, res) => {
 
 // Catch-All Handler for SPA (Next.js)
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, '../out/index.html'));
+  res.sendFile(path.join(staticPath, 'index.html'));
 });
 
 // CRASH PREVENTION

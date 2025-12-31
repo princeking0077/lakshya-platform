@@ -64,7 +64,7 @@ const Navbar = () => {
                             Student Login
                         </Link>
                         <Link
-                            href="/admin/login"
+                            href="/login"
                             className="flex items-center gap-2 px-5 py-2.5 text-sm font-bold bg-white text-black rounded-full hover:bg-gray-200 transition-colors shadow-lg shadow-white/10"
                         >
                             <ShieldCheck size={16} />
@@ -106,7 +106,7 @@ const Navbar = () => {
                             <Link href="/login" className="text-xl font-medium text-blue-400">
                                 Student Login
                             </Link>
-                            <Link href="/admin/login" className="text-xl font-medium text-purple-400">
+                            <Link href="/login" className="text-xl font-medium text-purple-400">
                                 Admin Login
                             </Link>
                         </div>
