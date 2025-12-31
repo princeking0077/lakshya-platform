@@ -9,7 +9,8 @@ coverage
 # Next.js
 .next/
 client/out/
-server/client_build/
+client/out/
+# server/client_build/
 # Wait, we WANT server/client_build to be committed IF we want Hostinger to use it without building.
 # If Hostinger runs "npm install" in server directory, it won't build frontend unless we have a script.
 # User asked to "push to github" for "server of hostinger".

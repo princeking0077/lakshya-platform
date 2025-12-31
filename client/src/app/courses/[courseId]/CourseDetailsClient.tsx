@@ -234,9 +234,14 @@ const CourseDetailsClient = ({ courseId }: { courseId: string }) => {
                             </div>
 
                             <div className="space-y-4 mb-8">
-                                <button className="w-full py-4 bg-white text-black rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg shadow-white/10">
+                                <a
+                                    href="https://forms.gle/BgrejR14F9jmB4FJ7"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block w-full text-center py-4 bg-white text-black rounded-xl font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg shadow-white/10"
+                                >
                                     Enroll Now
-                                </button>
+                                </a>
                                 <div className="text-center text-xs text-gray-500">
                                     30-Day Money-Back Guarantee
                                 </div>
