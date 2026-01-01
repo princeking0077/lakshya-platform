@@ -4,8 +4,9 @@
 # Enable Rewrite Engine
 RewriteEngine On
 
-# Allow start-server.php to be accessed directly for management
+# Allow PHP management tools to be accessed directly
 RewriteRule ^start-server\.php$ - [L]
+RewriteRule ^test-auth\.php$ - [L]
 
 # Proxy all other requests to Node.js on localhost:3000
 RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
@@ -20,6 +21,7 @@ RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
 <IfModule mod_proxy.c>
     ProxyPreserveHost On
     ProxyPass /start-server.php !
+    ProxyPass /test-auth.php !
     ProxyPass / http://127.0.0.1:3000/
     ProxyPassReverse / http://127.0.0.1:3000/
 </IfModule>
