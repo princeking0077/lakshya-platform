@@ -9,9 +9,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run clean && next build",
     "start": "node app.js",
-    "postinstall": "npm run clean && npm run build",
     "clean": "rm -rf .next",
     "lint": "eslint"
   },
