@@ -1,0 +1,31 @@
+# Hostinger .htaccess for Node.js Proxy
+# Routes all requests to index.php which proxies to Node.js server
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Allow start-server.php to be accessed directly for management
+RewriteRule ^start-server\.php$ - [L]
+
+# Proxy all other requests to Node.js on localhost:3000
+RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+
+# Alternative: If proxy doesn't work, route to index.php
+# Uncomment these lines if the proxy above fails
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_FILENAME} !-d
+# RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Enable proxy
+<IfModule mod_proxy.c>
+    ProxyPreserveHost On
+    ProxyPass /start-server.php !
+    ProxyPass / http://127.0.0.1:3000/
+    ProxyPassReverse / http://127.0.0.1:3000/
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Error handling
+ErrorDocument 503 /start-server.php
