@@ -96,6 +96,36 @@ app.get('/api/debug-server', (req, res) => {
     });
 });
 
+// Debug query endpoint (for testing database)
+app.post('/api/debug-query', async (req, res) => {
+    try {
+        const { query } = req.body;
+
+        // Security: Only allow SELECT queries
+        if (!query || typeof query !== 'string' || !query.trim().toLowerCase().startsWith('select')) {
+            return res.status(400).json({
+                success: false,
+                message: 'Only SELECT queries are allowed for security'
+            });
+        }
+
+        const { pool } = require('./backend/config/db');
+        const [rows] = await pool.execute(query);
+
+        res.json({
+            success: true,
+            rowCount: rows.length,
+            data: rows
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+            error: error.toString()
+        });
+    }
+});
+
 // Serve Next.js static pages - fallback to index.html for client-side routing
 app.get('*', (req, res) => {
     // Check if file exists in out directory
