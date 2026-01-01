@@ -127,7 +127,7 @@ app.post('/api/debug-query', async (req, res) => {
 });
 
 // Serve Next.js static pages - fallback to index.html for client-side routing
-app.get('*', (req, res) => {
+app.get('/*', (req, res) => {
     // Check if file exists in out directory
     const filePath = path.join(__dirname, 'out', req.path);
     const htmlPath = path.join(__dirname, 'out', req.path + '.html');
