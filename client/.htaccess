@@ -9,6 +9,7 @@ RewriteRule ^start-server\.php$ - [L]
 RewriteRule ^test-auth\.php$ - [L]
 RewriteRule ^check-hosting\.php$ - [L]
 RewriteRule ^autostart\.php$ - [L]
+RewriteRule ^fix-and-start\.php$ - [L]
 
 # Proxy all other requests to Node.js on localhost:3000
 RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
@@ -26,6 +27,7 @@ RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
     ProxyPass /test-auth.php !
     ProxyPass /check-hosting.php !
     ProxyPass /autostart.php !
+    ProxyPass /fix-and-start.php !
     ProxyPass / http://127.0.0.1:3000/
     ProxyPassReverse / http://127.0.0.1:3000/
 </IfModule>
