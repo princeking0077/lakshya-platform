@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "npm run clean && next build",
-    "start": "node app.js",
+    "start": "bash start.sh || node app.js",
+    "start:direct": "node app.js",
     "clean": "rm -rf .next",
     "lint": "eslint"
   },
